@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Toxon.Fonts.Rendering;
 
 namespace Toxon.Fonts.Application
 {
@@ -19,6 +20,10 @@ namespace Toxon.Fonts.Application
             {
                 throw;
             }
+
+            var renderer = new FontRenderer(font);
+            var img = renderer.Render('a');
+
 
         }
     }

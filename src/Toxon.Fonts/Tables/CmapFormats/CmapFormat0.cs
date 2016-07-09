@@ -20,5 +20,10 @@
 
             return new CmapFormat0(language, glyphIndexArray);
         }
+
+        public override int GetGlyphIndex(char c)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

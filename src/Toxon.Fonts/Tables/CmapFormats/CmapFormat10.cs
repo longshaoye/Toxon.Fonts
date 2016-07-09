@@ -8,5 +8,10 @@ namespace Toxon.Fonts.Tables.CmapFormats
         {
             throw new NotImplementedException();
         }
+
+        public override int GetGlyphIndex(char c)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

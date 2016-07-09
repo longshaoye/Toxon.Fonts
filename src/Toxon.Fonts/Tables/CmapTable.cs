@@ -9,12 +9,20 @@ namespace Toxon.Fonts.Tables
     internal class CmapTable
     {
         public ushort Version { get; }
-        public IReadOnlyList<CmapFormat> Subtables { get; }
+        //TODO proper key
+        public IReadOnlyDictionary<Tuple<ushort, ushort>, CmapFormat> Subtables { get; }
 
-        public CmapTable(ushort version, IEnumerable<CmapFormat> subtables)
+        public CmapTable(ushort version, IReadOnlyDictionary<Tuple<ushort, ushort>, CmapFormat> subtables)
         {
             Version = version;
-            Subtables = subtables.ToList();
+            Subtables = subtables.ToDictionary(x => x.Key, x => x.Value);
+        }
+        public int GetGlyphIndex(char c)
+        {
+            // TODO select a subtable, currently selecting the first Unicode (0)
+            var subtable = Subtables.First(x => x.Key.Item1 == 0);
+
+            return subtable.Value.GetGlyphIndex(c);
         }
 
         public static CmapTable Read(FontStreamReader reader, OffsetTable.Entry entry)
@@ -29,7 +37,7 @@ namespace Toxon.Fonts.Tables
 
             var numberOfSubtables = reader.ReadUInt16();
 
-            var subtables = new List<CmapFormat>();
+            var subtables = new Dictionary<Tuple<ushort, ushort>, CmapFormat>();
 
             for (var i = 0; i < numberOfSubtables; i++)
             {
@@ -39,7 +47,8 @@ namespace Toxon.Fonts.Tables
                 var relOffset = reader.ReadUInt32();
                 var offset = entry.Offset + relOffset;
 
-                subtables.Add(ReadSubtable(reader, platformId, platformSpecificId, offset));
+                var subtable = ReadSubtable(reader, platformId, platformSpecificId, offset);
+                subtables.Add(Tuple.Create(platformId, platformSpecificId), subtable);
             }
 
             return new CmapTable(version, subtables);

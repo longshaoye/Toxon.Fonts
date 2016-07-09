@@ -7,5 +7,8 @@ namespace Toxon.Fonts.Tables.CmapFormats
 {
     internal abstract class CmapFormat
     {
+        public static readonly int Missing = 0;
+
+        public abstract int GetGlyphIndex(char c);
     }
 }

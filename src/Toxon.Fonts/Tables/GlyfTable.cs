@@ -15,6 +15,11 @@ namespace Toxon.Fonts.Tables
             Glyphs = glyphs.ToList();
         }
 
+        public Glyph GetGlyph(int glyphIndex)
+        {
+            return Glyphs[glyphIndex];
+        }
+
         public static GlyfTable Read(FontStreamReader reader, OffsetTable.Entry entry)
         {
             reader.Seek(entry);
