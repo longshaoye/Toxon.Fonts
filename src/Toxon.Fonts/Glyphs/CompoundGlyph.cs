@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Toxon.Fonts.Rendering;
 
 namespace Toxon.Fonts.Glyphs
 {
@@ -12,6 +14,11 @@ namespace Toxon.Fonts.Glyphs
         {
             this.components = components.ToList();
             this.instructions = instructions;
+        }
+
+        public override void Render(FontRenderer renderer, Point origin)
+        {
+            throw new NotImplementedException();
         }
 
         public class Component

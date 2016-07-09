@@ -1,4 +1,6 @@
-﻿using Toxon.Fonts.Tables;
+﻿using System;
+using Toxon.Fonts.Rendering;
+using Toxon.Fonts.Tables;
 
 namespace Toxon.Fonts.Glyphs
 {
@@ -24,6 +26,53 @@ namespace Toxon.Fonts.Glyphs
             this.endPoints = endPoints;
             this.instructions = instructions;
             this.points = points;
+        }
+
+        public override void Render(FontRenderer renderer, Point origin)
+        {
+            var currentEndPoint = 0;
+
+            var firstInSequence = true;
+            var sequenceOrigin = new Point(0, 0);
+
+            BezierCurve bezier = null;
+
+            for (var i = 0; i < points.Length; i++)
+            {
+                var point = points[i];
+                var renderPoint = new Point(point.X, point.Y);
+
+                if (firstInSequence)
+                {
+                    bezier = new BezierCurve();
+                    renderer.MoveTo(renderPoint);
+
+                    firstInSequence = false;
+                    sequenceOrigin = renderPoint;
+                }
+
+                bezier.AddPoint(renderPoint - sequenceOrigin);
+
+                if (point.OnCurve && bezier.Points.Count > 1)
+                {
+                    renderer.Draw(bezier);
+                    bezier = new BezierCurve();
+                    bezier.AddPoint(renderPoint - sequenceOrigin);
+                }
+
+                if (endPoints[currentEndPoint] == i)
+                {
+                    if (!point.OnCurve)
+                    {
+                        // last point is off-curve, loop to origin
+                        bezier.AddPoint(new Point(0, 0));
+                        renderer.Draw(bezier);
+                    }
+
+                    firstInSequence = true;
+                    currentEndPoint++;
+                }
+            }
         }
     }
 }

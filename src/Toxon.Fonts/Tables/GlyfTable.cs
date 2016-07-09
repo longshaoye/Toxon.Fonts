@@ -222,6 +222,11 @@ namespace Toxon.Fonts.Tables
             public short Y { get; internal set; }
 
             public bool OnCurve { get; internal set; }
+
+            public override string ToString()
+            {
+                return $"X:{X}, Y:{Y}, OnCurve:{OnCurve}";
+            }
         }
     }
 }
