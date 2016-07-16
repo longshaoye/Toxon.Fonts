@@ -15,6 +15,42 @@ namespace Toxon.Fonts.Rendering
         {
             ProcessInstructions();
 
+            var bounds = GetBounds();
+
+            var dx = bounds.TopLeft.X;
+            var dy = bounds.TopLeft.Y;
+
+            using (var outputStream = new MemoryStream())
+            {
+                var textWriter = new StreamWriter(outputStream);
+                var binaryWriter = new BinaryWriter(outputStream);
+
+                textWriter.WriteLine("P6");
+                textWriter.WriteLine($"{bounds.Size.Width} {bounds.Size.Height}");
+                textWriter.WriteLine("255");
+                textWriter.Flush();
+
+                for (var y = 0; y < bounds.Size.Height; y++)
+                {
+                    for (var x = 0; x < bounds.Size.Width; x++)
+                    {
+                        var p = new Point(x + dx, y + dy);
+                        Color color;
+                        if (!pixels.TryGetValue(p, out color))
+                        {
+                            color = Color.White;
+                        }
+
+                        binaryWriter.Write(color.R);
+                        binaryWriter.Write(color.G);
+                        binaryWriter.Write(color.B);
+                    }
+                }
+
+                binaryWriter.Flush();
+
+                return outputStream.ToArray();
+            }
         }
 
         internal void SetPixel(Point point)

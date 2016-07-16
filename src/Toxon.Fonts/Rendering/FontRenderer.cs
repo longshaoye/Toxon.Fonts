@@ -27,9 +27,14 @@ namespace Toxon.Fonts.Rendering
             image.AddInstruction(new MoveToInstruction(point));
         }
 
-        public void Draw(BezierCurve bezier)
+        public void DrawCurve(BezierCurve bezier)
         {
             image.AddInstruction(new DrawBezierCurveInstruction(bezier));
+        }
+
+        public void DrawLine(Point start, Point end)
+        {
+            image.AddInstruction(new DrawLineInstruction(start, end));
         }
     }
 }

@@ -33,6 +33,16 @@ namespace Toxon.Fonts.Application
                 throw;
             }
 
+            try
+            {
+                var ppm = img.Render();
+                File.WriteAllBytes("out.ppm", ppm);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
 
         }
     }
