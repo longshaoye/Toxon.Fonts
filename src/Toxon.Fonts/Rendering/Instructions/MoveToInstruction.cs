@@ -8,5 +8,10 @@
         {
             this.point = point;
         }
+
+        public override void Render(FontImage img)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

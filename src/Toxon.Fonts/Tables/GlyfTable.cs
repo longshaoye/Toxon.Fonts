@@ -218,8 +218,8 @@ namespace Toxon.Fonts.Tables
 
         internal class Point
         {
-            public short X { get; internal set; }
-            public short Y { get; internal set; }
+            public int X { get; internal set; }
+            public int Y { get; internal set; }
 
             public bool OnCurve { get; internal set; }
 

@@ -16,13 +16,22 @@ namespace Toxon.Fonts.Application
             {
                 font = reader.Read(file);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw;
             }
 
             var renderer = new FontRenderer(font);
-            var img = renderer.Render('a');
+
+            FontImage img;
+            try
+            {
+                img = renderer.Render('b');
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
 
 
         }

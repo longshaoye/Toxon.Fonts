@@ -31,48 +31,117 @@ namespace Toxon.Fonts.Glyphs
         public override void Render(FontRenderer renderer, Point origin)
         {
             var currentEndPoint = 0;
+            var currentState = RenderState.Initial;
 
-            var firstInSequence = true;
-            var sequenceOrigin = new Point(0, 0);
+            var sequenceStartPoint = default(Point);
 
-            BezierCurve bezier = null;
+            Point initial = default(Point);
+            Point control = default(Point);
 
             for (var i = 0; i < points.Length; i++)
             {
                 var point = points[i];
                 var renderPoint = new Point(point.X, point.Y);
 
-                if (firstInSequence)
+                switch (currentState)
                 {
-                    bezier = new BezierCurve();
-                    renderer.MoveTo(renderPoint);
+                    case RenderState.Initial:
+                        if (!point.OnCurve)
+                        {
+                            throw new FormatException("Initial point should be on curve");
+                        }
 
-                    firstInSequence = false;
-                    sequenceOrigin = renderPoint;
-                }
+                        initial = renderPoint;
+                        sequenceStartPoint = initial;
+                        currentState = RenderState.HaveStartPoint;
+                        break;
+                    case RenderState.HaveStartPoint:
+                        if (point.OnCurve)
+                        {
+                            renderer.DrawLine(initial, renderPoint);
 
-                bezier.AddPoint(renderPoint - sequenceOrigin);
+                            initial = renderPoint;
+                            currentState = RenderState.HaveStartPoint;
+                        }
+                        else
+                        {
+                            control = renderPoint;
+                            currentState = RenderState.HaveControlPoint;
+                        }
+                        break;
+                    case RenderState.HaveControlPoint:
+                        if (point.OnCurve)
+                        {
+                            var curve = new BezierCurve();
 
-                if (point.OnCurve && bezier.Points.Count > 1)
-                {
-                    renderer.Draw(bezier);
-                    bezier = new BezierCurve();
-                    bezier.AddPoint(renderPoint - sequenceOrigin);
+                            curve.AddPoint(initial);
+                            curve.AddPoint(control);
+                            curve.AddPoint(renderPoint);
+
+                            renderer.DrawCurve(curve);
+
+                            initial = renderPoint;
+                            currentState = RenderState.HaveStartPoint;
+                        }
+                        else
+                        {
+                            var midPoint = (control + renderPoint) / 2;
+
+                            var curve = new BezierCurve();
+
+                            curve.AddPoint(initial);
+                            curve.AddPoint(control);
+                            curve.AddPoint(midPoint);
+
+                            renderer.DrawCurve(curve);
+
+                            initial = midPoint;
+                            control = renderPoint;
+                            currentState = RenderState.HaveControlPoint;
+                        }
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
 
                 if (endPoints[currentEndPoint] == i)
                 {
-                    if (!point.OnCurve)
+                    if (currentState == RenderState.HaveControlPoint)
                     {
-                        // last point is off-curve, loop to origin
-                        bezier.AddPoint(new Point(0, 0));
-                        renderer.Draw(bezier);
+                        var curve = new BezierCurve();
+
+                        curve.AddPoint(initial);
+                        curve.AddPoint(control);
+                        curve.AddPoint(sequenceStartPoint);
+
+                        renderer.DrawCurve(curve);
                     }
 
-                    firstInSequence = true;
+                    if (currentState == RenderState.Initial)
+                    {
+                        throw new FormatException("Ending an empty curve");
+                    }
+
+                    sequenceStartPoint = default(Point);
+                    initial = default(Point);
+                    control = default(Point);
+                    currentState = RenderState.Initial;
+
                     currentEndPoint++;
                 }
             }
+
+            if (currentState != RenderState.Initial)
+            {
+                throw new FormatException("Trailing points found");
+            }
+        }
+
+        private enum RenderState
+        {
+            Initial,
+            HaveStartPoint,
+            HaveControlPoint,
         }
     }
 }

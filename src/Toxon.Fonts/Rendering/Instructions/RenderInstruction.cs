@@ -2,5 +2,6 @@
 {
     internal abstract class RenderInstruction
     {
+        public abstract void Render(FontImage img);
     }
 }
